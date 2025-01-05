@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
-#include "src/simulation.hpp"
+#include "src/simulate.hpp"
+#include "src/brain.hpp"
+#include "src/car.hpp"
 #include <iostream>
 #include <string>
 
@@ -8,20 +10,26 @@ int main() {
     const int frame_rate = 60;
     const int display_x = 1280;
     const int display_y = 720;
+    const int train_cycles = 10000;
     
-    Simulation simulation;
-    
-    sf::VideoMode window_scale(display_x, display_y);
-    sf::RenderWindow window(window_scale, "autodrive");
+    sf::VideoMode video(display_x, display_y);
+    sf::RenderWindow window(video, "");
+
     sf::Texture texture;
+    sf::Sprite sprite;
+    sf::Image image;
     sf::Clock clock;
     sf::Event event;
 
-    window.setFramerateLimit(frame_rate);
     texture.loadFromFile("../img/track.png");
-    sf::Sprite sprite(texture);
-    sf::Image image = texture.copyToImage();
+    window.setFramerateLimit(frame_rate);
+    sprite.setTexture(texture);
+    
+    image = texture.copyToImage();
 
+    Car car;
+    Brain brain;
+    
     while (window.isOpen()) {
 
         while (window.pollEvent(event)) {
@@ -30,15 +38,7 @@ int main() {
             }
         }
 
-        simulation.render(
-            window,
-            sprite,
-            image,
-            sf::Keyboard::isKeyPressed(sf::Keyboard::A),
-            sf::Keyboard::isKeyPressed(sf::Keyboard::D),
-            sf::Keyboard::isKeyPressed(sf::Keyboard::W),
-            sf::Keyboard::isKeyPressed(sf::Keyboard::S)
-        );
+        Simulate::render(car, brain, image, sprite, window);
     }
 
     return 0;
