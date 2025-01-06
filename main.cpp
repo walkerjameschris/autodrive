@@ -10,25 +10,27 @@ int main() {
     const int frame_rate = 60;
     const int display_x = 1280;
     const int display_y = 720;
-    const int train_cycles = 10000;
-    
-    sf::VideoMode video(display_x, display_y);
-    sf::RenderWindow window(video, "");
+    const int train_cycles = 10;
 
     sf::Texture texture;
     sf::Sprite sprite;
     sf::Image image;
-    sf::Clock clock;
-    sf::Event event;
 
     texture.loadFromFile("../img/track.png");
-    window.setFramerateLimit(frame_rate);
     sprite.setTexture(texture);
-    
     image = texture.copyToImage();
 
     Car car;
-    Brain brain;
+    Brain brain(car.sensors.size());
+
+    Simulate::train(train_cycles, car, brain, image);
+
+    sf::VideoMode video(display_x, display_y);
+    sf::RenderWindow window(video, "autodrive");
+    sf::Clock clock;
+    sf::Event event;
+
+    window.setFramerateLimit(frame_rate);
     
     while (window.isOpen()) {
 

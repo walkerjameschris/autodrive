@@ -1,29 +1,38 @@
 #pragma once
 
+#include <map>
 #include <cmath>
 #include <vector>
+#include <string>
 #include <algorithm>
 
-using State = std::vector<float>;
+using Vector = std::vector<float>;
+using Points = std::map<int, Vector>;
 
 struct Car {
 
     float x = 640;
     float y = 125;
-    int angle = 180;
+    int angle = 270;
     int velocity = 0;
 
     float init_x = 640;
     float init_y = 125;
-    int init_angle = 180;
+    int init_angle = 270;
     int init_velocity = 0;
 
     float display_x = 1280;
     float display_y = 720;
 
-    State state = {0, 0, 0};
-    State sensor_x_pos = {0, 0, 0};
-    State sensor_y_pos = {0, 0, 0};
+    int max_cycles = 200;
+
+    Points sensors = {
+        {-45, {0, 0}},
+        {-15, {0, 0}},
+        {0, {0, 0}},
+        { 15, {0, 0}},
+        { 45, {0, 0}}
+    };
 
     static bool off_track(int x, int y, sf::Image& image) {
         sf::Color color = image.getPixel(x, y);
@@ -31,31 +40,34 @@ struct Car {
         return color == crash;
     }
 
-    State read_sensors(sf::Image& image) {
+    Vector read_sensors(sf::Image& image) {
 
-        State state = {0, 0, 0};
-        State angles = {-45, 0, 45};
+        Vector state;
 
-        for (int i = 0; i < 3; i++) {
+        for (auto& sensor : sensors) {
 
-            float radians = angles[i] * M_PI / 180.0;
+            float radians = float(angle + sensor.first) * M_PI / 180.0;
             float sensor_x = x;
             float sensor_y = y;
             int cycles = 0;
 
-            while (!off_track(sensor_x, sensor_y, image) && cycles < 10) {
-                sensor_x += 1 * std::cos(radians);
-                sensor_y -= 1 * std::sin(radians);
+            while (!off_track(sensor_x, sensor_y, image) && cycles < max_cycles) {
+                sensor_x -= 1 * std::sin(radians);
+                sensor_y += 1 * std::cos(radians);
+                cycles += 1;
             }
 
-            sensor_x_pos[i] = sensor_x;
-            sensor_y_pos[i] = sensor_y;
+            sensor.second[0] = sensor_x;
+            sensor.second[1] = sensor_y;
+
+            float dist = std::sqrt(pow(x - sensor_x, 2) + pow(y - sensor_y, 2));
+            state.emplace_back(dist);
         }
 
         return state;
     }
 
-    State reset(sf::Image& image) {
+    Vector reset(sf::Image& image) {
         x = init_x;
         y = init_y;
         angle = init_angle;
@@ -63,7 +75,7 @@ struct Car {
         return read_sensors(image);
     }
 
-    State step(
+    Vector step(
         int action,
         bool& done,
         float& reward,
@@ -82,8 +94,8 @@ struct Car {
 
         float radians = float(angle) * M_PI / 180.0;
 
-        x -= velocity * std::cos(radians);
-        y += velocity * std::sin(radians);
+        x -= velocity * std::sin(radians);
+        y += velocity * std::cos(radians);
 
         done = off_track(x, y, image);
         reward = 1.0;
