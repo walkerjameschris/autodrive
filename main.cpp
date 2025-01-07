@@ -10,18 +10,18 @@ int main() {
     const int frame_rate = 60;
     const int display_x = 1280;
     const int display_y = 720;
-    const int train_cycles = 10;
+    const int train_cycles = 500000;
 
     sf::Texture texture;
     sf::Sprite sprite;
     sf::Image image;
 
-    texture.loadFromFile("../img/track.png");
+    texture.loadFromFile("../img/track-cota.png");
     sprite.setTexture(texture);
     image = texture.copyToImage();
 
     Car car;
-    Brain brain(car.sensors.size());
+    Brain brain;
 
     Simulate::train(train_cycles, car, brain, image);
 

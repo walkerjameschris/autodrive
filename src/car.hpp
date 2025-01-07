@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include "brain.hpp"
 
 using Vector = std::vector<float>;
 using Points = std::map<int, Vector>;
@@ -13,13 +14,8 @@ struct Car {
 
     float x = 640;
     float y = 125;
-    int angle = 270;
-    int velocity = 0;
-
-    float init_x = 640;
-    float init_y = 125;
-    int init_angle = 270;
-    int init_velocity = 0;
+    int angle = 200;
+    int velocity = 5;
 
     float display_x = 1280;
     float display_y = 720;
@@ -28,14 +24,12 @@ struct Car {
 
     Points sensors = {
         {-45, {0, 0}},
-        {-15, {0, 0}},
         {0, {0, 0}},
-        { 15, {0, 0}},
-        { 45, {0, 0}}
+        { 15, {0, 0}}
     };
 
-    static bool off_track(int x, int y, sf::Image& image) {
-        sf::Color color = image.getPixel(x, y);
+    static bool off_track(float x, float y, sf::Image& image) {
+        sf::Color color = image.getPixel(int(x), int(y));
         sf::Color crash = {0, 0, 0, 255};
         return color == crash;
     }
@@ -68,10 +62,14 @@ struct Car {
     }
 
     Vector reset(sf::Image& image) {
-        x = init_x;
-        y = init_y;
-        angle = init_angle;
-        velocity = init_velocity;
+
+        while (off_track(x, y, image)) {
+            x = Numerics::unif() * 1280;
+            y = Numerics::unif() * 720;
+            angle = int(Numerics::unif() * 359);
+            velocity = std::max(1, int(Numerics::unif() * 9));
+        }
+
         return read_sensors(image);
     }
 
@@ -82,24 +80,33 @@ struct Car {
         sf::Image& image
     ) {
 
-        if (action == 1) {
-            angle = (angle - 10) % 359;
+        Vector state = read_sensors(image);
+
+        if (action == 0) {
+            angle = (angle - 5) % 359;
+        } else if (action == 1) {
+            angle = (angle + 5) % 359;
         } else if (action == 2) {
-            angle = (angle + 10) % 359;
+            velocity = std::clamp(velocity + 1.0, 1.0, 10.0);
         } else if (action == 3) {
-            velocity = std::clamp(velocity + 1.0, 0.0, 10.0);
-        } else if (action == 4) {
-            velocity = std::clamp(velocity - 1.0, 0.0, 10.0);
+            velocity = std::clamp(velocity - 1.0, 1.0, 10.0);
         }
 
         float radians = float(angle) * M_PI / 180.0;
+
+        float old_x = x;
+        float old_y = y;
 
         x -= velocity * std::sin(radians);
         y += velocity * std::cos(radians);
 
         done = off_track(x, y, image);
-        reward = 1.0;
+        reward = std::sqrt(pow(x - old_x, 2) + pow(y - old_y, 2));
 
-        return read_sensors(image);
+        if (done) {
+            reward = -1000;
+        }
+
+        return state;
     }
 };

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "brain.hpp"
 #include <iostream>
 #include "car.hpp"
 #include <string>
@@ -19,27 +18,34 @@ namespace Simulate {
 
         for (int i = 0; i < n; i++) {
 
+            Vector state = car.reset(image);
+
+            int cycle = 0;
+            int action = 0;
             float reward = 0;
             float rewards = 0;
             bool done = false;
-            Vector state = car.reset(image);
-            int cycle = 0;
-        
 
             while (!done && cycle < 1000) {
-                int action = brain.get_action(state, epsilon);
+                action = brain.get_action(state, epsilon);
                 Vector next_state = car.step(action, done, reward, image);
-                brain.update(state, next_state, action);
+                brain.update(state, next_state, action, reward);
                 rewards = round(rewards + reward);
                 state = next_state;
                 cycle += 1;
             }
 
-            epsilon = std::max(float(0), epsilon - (2 / float(n)));
+            epsilon = std::max(float(0), epsilon - (1 / float(n)));
 
-            if ((i % 250) == 0) {
-                std::cout << "Epoch: " << std::to_string(i) << " ";
-                std::cout << "Reward: " << std::to_string(rewards) << std::endl;
+            if ((i % 1000) == 0) {
+                std::cout << " Epoch: " << std::to_string(i);
+                std::cout << " Action: " << std::to_string(action);
+                std::cout << " Epsilon: " << std::to_string(epsilon);
+                std::cout << std::endl;
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+                break;
             }
         }
     }
@@ -54,20 +60,21 @@ namespace Simulate {
 
         bool done;
         float reward;
-        int action = brain.get_action(car.read_sensors(image), 1);
+        int action = brain.get_action(car.read_sensors(image), 0);
         Vector state = car.step(action, done, reward, image);
 
         sf::RectangleShape rectangle;
         sf::CircleShape circle;
 
+        rectangle.setFillColor(sf::Color::Green);
         rectangle.setPosition({car.x, car.y});
         rectangle.setRotation(car.angle);
-        rectangle.setOrigin({20, 30});
-        rectangle.setSize({40, 60});
+        rectangle.setOrigin({10, 20});
+        rectangle.setSize({20, 30});
 
         circle.setFillColor(sf::Color::Red);
-        circle.setOrigin({5, 5});
-        circle.setRadius(5);
+        circle.setOrigin({3, 3});
+        circle.setRadius(3);
 
         window.clear();
         window.draw(sprite);
@@ -80,7 +87,6 @@ namespace Simulate {
         }
 
         window.draw(rectangle);
-
         window.display();
 
         if (done) {
