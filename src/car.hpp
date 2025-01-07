@@ -25,7 +25,7 @@ struct Car {
     Points sensors = {
         {-45, {0, 0}},
         {0, {0, 0}},
-        { 15, {0, 0}}
+        {45, {0, 0}}
     };
 
     static bool off_track(float x, float y, sf::Image& image) {

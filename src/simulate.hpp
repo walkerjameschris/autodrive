@@ -4,6 +4,7 @@
 #include <iostream>
 #include "car.hpp"
 #include <string>
+#include <deque>
 
 namespace Simulate {
 
@@ -15,6 +16,7 @@ namespace Simulate {
     ) {
 
         float epsilon = 1;
+        std::deque<float> reward_history;
 
         for (int i = 0; i < n; i++) {
 
@@ -36,10 +38,21 @@ namespace Simulate {
             }
 
             epsilon = std::max(float(0), epsilon - (1 / float(n)));
+            reward_history.push_back(rewards);
+
+            if (reward_history.size() >= 1000) {
+                reward_history.pop_front();
+            }
+
+            float avg_reward = 0;
+
+            for (float i : reward_history) {
+                avg_reward += i / float(reward_history.size());
+            }
 
             if ((i % 1000) == 0) {
                 std::cout << " Epoch: " << std::to_string(i);
-                std::cout << " Action: " << std::to_string(action);
+                std::cout << " Reward: " << std::to_string(avg_reward);
                 std::cout << " Epsilon: " << std::to_string(epsilon);
                 std::cout << std::endl;
             }
