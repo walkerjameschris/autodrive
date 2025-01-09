@@ -1,37 +1,49 @@
-#include <SFML/Graphics.hpp>
-#include "src/simulate.hpp"
-#include "src/agent.hpp"
-#include "src/car.hpp"
-#include <iostream>
 #include <string>
+#include <iostream>
+#include "src/car.hpp"
+#include "src/agent.hpp"
+#include "src/simulate.hpp"
+#include <SFML/Graphics.hpp>
 
 int main() {
 
-    const int frame_rate = 60;
-    const int display_x = 1280;
-    const int display_y = 720;
-    const int train_cycles = 500000;
+    // Hyperparameters
+    const int fps = 60;
+    const int max_speed = 10;
+    const int epochs = 500000;
+    const int sensor_read = 200;
+    const float sensor_chunk = 20;
+    const float learn_rate = 0.05;
+    const float discount_rate = 0.90;
 
+    // Containers for track image
     sf::Texture texture;
     sf::Sprite sprite;
     sf::Image image;
 
+    // Load track image
     texture.loadFromFile("../img/track.png");
     sprite.setTexture(texture);
     image = texture.copyToImage();
 
-    Car car(display_x, display_y, 200);
-    Agent agent;
+    // Record image width and height, ideally 1280 x 720
+    sf::Vector2u display_dims = image.getSize();
+    const int display_x = display_dims.x;
+    const int display_y = display_dims.y;
 
-    Simulate::train(train_cycles, car, agent, image);
+    // Create car and agent then train
+    Car car(display_x, display_y, sensor_read, max_speed);
+    Agent agent(sensor_chunk, learn_rate, discount_rate);
+    simulate::train(epochs, car, agent, image);
 
+    // Launch SFML window
     sf::VideoMode video(display_x, display_y);
     sf::RenderWindow window(video, "autodrive");
+    window.setFramerateLimit(fps);
     sf::Clock clock;
     sf::Event event;
 
-    window.setFramerateLimit(frame_rate);
-    
+    // Start rendering loop for SFML
     while (window.isOpen()) {
 
         while (window.pollEvent(event)) {
@@ -40,7 +52,7 @@ int main() {
             }
         }
 
-        Simulate::render(car, agent, image, sprite, window);
+        simulate::render(car, agent, image, sprite, window);
     }
 
     return 0;

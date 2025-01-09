@@ -8,6 +8,7 @@ using Key = std::vector<int>;
 using Vector = std::vector<float>;
 
 namespace numerics {
+    // A namespace of tools for generating randomness
 
     float random() {
         return float(rand()) / float(RAND_MAX);
@@ -19,6 +20,11 @@ namespace numerics {
 };
 
 struct QState {
+    // This represents what action should be taken
+    // given a current state. We store these records
+    // in a hash-map within the agent and provide
+    // methods for determine the best action and
+    // its Q-values.
 
     Vector q = {0, 0, 0, 0};
 
@@ -33,15 +39,27 @@ struct QState {
 };
 
 struct Agent {
+    // The brain of the car itself. Has data structures
+    // for producing actions and updating its memories.
+
+    float chunk_size;
+    float learn_rate;
+    float discount_rate;
 
     std::map<Key, QState> qtable;
 
-    static int encode(float x, float divisor = 20) {
-        return std::floor(x / divisor);
+    Agent(float chunk, float lr, float dr) {
+        chunk_size = chunk;
+        learn_rate = lr;
+        discount_rate = dr;
+    }
+
+    int encode(float x) {
+        return std::floor(x / chunk_size);
     }
 
     int get_action(Vector state, float epsilon) {
-
+ 
         if (numerics::random() < epsilon) {
             return numerics::randint();
         }
@@ -70,8 +88,8 @@ struct Agent {
 
         float q = qtable[key].q[action];
         float next_q = qtable[next_key].max();
-        float solved_q = q + 0.05d * (reward + 0.9d * next_q - q);
+        float final_q = q + learn_rate * (reward + discount_rate * next_q - q);
 
-        qtable[key].q[action] = solved_q;
+        qtable[key].q[action] = final_q;
     }
 };
