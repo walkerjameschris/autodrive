@@ -5,28 +5,32 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-#include "brain.hpp"
+#include "agent.hpp"
 
 using Vector = std::vector<float>;
 using Points = std::map<int, Vector>;
 
 struct Car {
 
-    float x = 640;
-    float y = 125;
-    int angle = 200;
-    int velocity = 5;
-
-    float display_x = 1280;
-    float display_y = 720;
-
-    int max_cycles = 200;
+    float x;
+    float y;
+    int angle;
+    int velocity;
+    int max_cycles;
+    float display_x;
+    float display_y;
 
     Points sensors = {
         {-45, {0, 0}},
         {0, {0, 0}},
         {45, {0, 0}}
     };
+
+    Car(float disp_x, float disp_y, int cycles) {
+        display_x = disp_x;
+        display_y = disp_y;
+        max_cycles = cycles;
+    }
 
     static bool off_track(float x, float y, sf::Image& image) {
         sf::Color color = image.getPixel(int(x), int(y));
@@ -64,10 +68,10 @@ struct Car {
     Vector reset(sf::Image& image) {
 
         while (off_track(x, y, image)) {
-            x = Numerics::unif() * 1280;
-            y = Numerics::unif() * 720;
-            angle = int(Numerics::unif() * 359);
-            velocity = std::max(1, int(Numerics::unif() * 9));
+            x = numerics::random() * display_x;
+            y = numerics::random() * display_y;
+            velocity = numerics::randint(9);
+            angle = numerics::randint(359);
         }
 
         return read_sensors(image);

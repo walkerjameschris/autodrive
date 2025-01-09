@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "src/simulate.hpp"
-#include "src/brain.hpp"
+#include "src/agent.hpp"
 #include "src/car.hpp"
 #include <iostream>
 #include <string>
@@ -16,14 +16,14 @@ int main() {
     sf::Sprite sprite;
     sf::Image image;
 
-    texture.loadFromFile("../img/track-cota.png");
+    texture.loadFromFile("../img/track.png");
     sprite.setTexture(texture);
     image = texture.copyToImage();
 
-    Car car;
-    Brain brain;
+    Car car(display_x, display_y, 200);
+    Agent agent;
 
-    Simulate::train(train_cycles, car, brain, image);
+    Simulate::train(train_cycles, car, agent, image);
 
     sf::VideoMode video(display_x, display_y);
     sf::RenderWindow window(video, "autodrive");
@@ -40,7 +40,7 @@ int main() {
             }
         }
 
-        Simulate::render(car, brain, image, sprite, window);
+        Simulate::render(car, agent, image, sprite, window);
     }
 
     return 0;

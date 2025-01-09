@@ -11,7 +11,7 @@ namespace Simulate {
     void train(
         int n,
         Car& car,
-        Brain& brain,
+        Agent& agent,
         sf::Image& image
     ) {
 
@@ -29,9 +29,9 @@ namespace Simulate {
             bool done = false;
 
             while (!done && cycle < 1000) {
-                action = brain.get_action(state, epsilon);
+                action = agent.get_action(state, epsilon);
                 Vector next_state = car.step(action, done, reward, image);
-                brain.update(state, next_state, action, reward);
+                agent.update(state, next_state, action, reward);
                 rewards = round(rewards + reward);
                 state = next_state;
                 cycle += 1;
@@ -40,7 +40,7 @@ namespace Simulate {
             epsilon = std::max(float(0), epsilon - (1 / float(n)));
             reward_history.push_back(rewards);
 
-            if (reward_history.size() >= 1000) {
+            if (reward_history.size() >= 100) {
                 reward_history.pop_front();
             }
 
@@ -65,7 +65,7 @@ namespace Simulate {
 
     void render(
         Car& car,
-        Brain& brain,
+        Agent& agent,
         sf::Image& image,
         sf::Sprite& sprite,
         sf::RenderWindow& window
@@ -73,7 +73,7 @@ namespace Simulate {
 
         bool done;
         float reward;
-        int action = brain.get_action(car.read_sensors(image), 0);
+        int action = agent.get_action(car.read_sensors(image), 0);
         Vector state = car.step(action, done, reward, image);
 
         sf::RectangleShape rectangle;
