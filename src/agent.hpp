@@ -1,30 +1,30 @@
 #pragma once
 
 #include <map>
+#include <cmath>
 #include <vector>
 #include <algorithm>
 
 using Key = std::vector<int>;
 using Vector = std::vector<float>;
 
+unsigned int seed = 123456;
+
 namespace numerics {
-    // A namespace of tools for generating randomness
 
     float random() {
-        return float(rand()) / float(RAND_MAX);
+        unsigned int multiply = 16807;
+        unsigned int divisor = 2147483647;
+        seed = (multiply * seed) % divisor;
+        return std::abs(float(seed) / float(divisor));
     }
 
-    int randint(int states = 3) {
-        return std::floor(random() * (states + 1));
+    int randint(int low, int high) {
+        return std::floor(low + random() * ((high - low) + 1));
     }
 };
 
 struct QState {
-    // This represents what action should be taken
-    // given a current state. We store these records
-    // in a hash-map within the agent and provide
-    // methods for determine the best action and
-    // its Q-values.
 
     Vector q = {0, 0, 0, 0};
 
@@ -39,19 +39,17 @@ struct QState {
 };
 
 struct Agent {
-    // The brain of the car itself. Has data structures
-    // for producing actions and updating its memories.
 
+    float lr;
+    float dr;
     float chunk_size;
-    float learn_rate;
-    float discount_rate;
 
     std::map<Key, QState> qtable;
 
-    Agent(float chunk, float lr, float dr) {
+    Agent(float chunk, float learn_rate, float discount_rate) {
         chunk_size = chunk;
-        learn_rate = lr;
-        discount_rate = dr;
+        dr = discount_rate;
+        lr = learn_rate;
     }
 
     int encode(float x) {
@@ -61,7 +59,7 @@ struct Agent {
     int get_action(Vector state, float epsilon) {
  
         if (numerics::random() < epsilon) {
-            return numerics::randint();
+            return numerics::randint(0, 3);
         }
 
         Key key;
@@ -73,22 +71,22 @@ struct Agent {
         return qtable[key].argmax();
     }
 
-    void update(Vector state, Vector next_state, int action, float reward) {
+    void update(Vector state, Vector new_state, int action, float reward) {
 
         Key key;
-        Key next_key;
+        Key new_key;
 
         for (float i : state) {
             key.emplace_back(encode(i));
         }
 
-        for (float i : next_state) {
-            next_key.emplace_back(encode(i));
+        for (float i : new_state) {
+            new_key.emplace_back(encode(i));
         }
 
         float q = qtable[key].q[action];
-        float next_q = qtable[next_key].max();
-        float final_q = q + learn_rate * (reward + discount_rate * next_q - q);
+        float new_q = qtable[new_key].max();
+        float final_q = q + lr * (reward + dr * new_q - q);
 
         qtable[key].q[action] = final_q;
     }

@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include "src/hud.hpp"
 #include "src/car.hpp"
 #include "src/agent.hpp"
 #include "src/simulate.hpp"
@@ -7,43 +8,40 @@
 
 int main() {
 
-    // Hyperparameters
-    const int fps = 60;
-    const int max_speed = 10;
-    const int epochs = 500000;
-    const int sensor_read = 200;
-    const float sensor_chunk = 20;
-    const float learn_rate = 0.05;
-    const float discount_rate = 0.90;
+    int fps = 60;
+    int max_speed = 10;
+    int epochs = 500000;
+    int sensor_read = 200;
+    float sensor_chunk = 20;
+    float learn_rate = 0.05;
+    float discount_rate = 0.90;
 
-    // Containers for track image
     sf::Texture texture;
     sf::Sprite sprite;
     sf::Image image;
 
-    // Load track image
     texture.loadFromFile("../img/track.png");
     sprite.setTexture(texture);
     image = texture.copyToImage();
 
-    // Record image width and height, ideally 1280 x 720
     sf::Vector2u display_dims = image.getSize();
-    const int display_x = display_dims.x;
-    const int display_y = display_dims.y;
+    int display_x = display_dims.x;
+    int display_y = display_dims.y;
 
-    // Create car and agent then train
-    Car car(display_x, display_y, sensor_read, max_speed);
+    Car car(display_x, display_y, sensor_read, max_speed, image);
     Agent agent(sensor_chunk, learn_rate, discount_rate);
-    simulate::train(epochs, car, agent, image);
+    HUD hud("../font/jetbrains.ttf");
 
-    // Launch SFML window
+    simulate::train(epochs, car, agent);
+
     sf::VideoMode video(display_x, display_y);
     sf::RenderWindow window(video, "autodrive");
     window.setFramerateLimit(fps);
     sf::Clock clock;
     sf::Event event;
 
-    // Start rendering loop for SFML
+    Vector state = car.reset();
+
     while (window.isOpen()) {
 
         while (window.pollEvent(event)) {
@@ -52,7 +50,15 @@ int main() {
             }
         }
 
-        simulate::render(car, agent, image, sprite, window);
+        state = simulate::render(
+            hud,
+            car,
+            agent,
+            state,
+            clock,
+            sprite,
+            window
+        );
     }
 
     return 0;

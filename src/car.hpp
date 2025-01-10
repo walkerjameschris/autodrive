@@ -21,6 +21,7 @@ struct Car {
     int max_cycles;
     float display_x;
     float display_y;
+    sf::Image track;
 
     Points sensors = {
         {-45, {0, 0}},
@@ -28,30 +29,38 @@ struct Car {
         {45, {0, 0}}
     };
 
-    Car(float disp_x, float disp_y, int cycles, int speed) {
+    Car(
+        float disp_x,
+        float disp_y,
+        int cycles,
+        int speed,
+        sf::Image image
+    ) {
         display_x = disp_x;
         display_y = disp_y;
         max_cycles = cycles;
         max_speed = speed;
+        track = image;
     }
 
-    static bool off_track(float x, float y, sf::Image& image) {
-        sf::Color color = image.getPixel(int(x), int(y));
+    static float distance(float x1, float x2, float y1, float y2) {
+        return std::sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
+    }
+
+    bool off_track(float x, float y) {
+        sf::Color color = track.getPixel(int(x), int(y));
         sf::Color crash = {0, 0, 0, 255};
         return color == crash;
     }
 
-    Vector read_sensors(sf::Image& image) {
 
+    Vector read_sensors() {
         // This method determines the distance from the car to
         // the wall along specified angles. These are the
         // car's sensors and its how it views the world.
 
         Vector state;
 
-        // We iterate through all sensors and determine the
-        // distance to the wall or stop early if a max viewing
-        // distance is reached.
         for (auto& sensor : sensors) {
 
             float radians = float(angle + sensor.first) * M_PI / 180.0;
@@ -61,7 +70,7 @@ struct Car {
             for (int i = 0; i < max_cycles; i++) {
                 sensor_x -= 1 * std::sin(radians);
                 sensor_y += 1 * std::cos(radians);
-                if (off_track(sensor_x, sensor_y, image)) {
+                if (off_track(sensor_x, sensor_y)) {
                     break;
                 }
             }
@@ -69,42 +78,34 @@ struct Car {
             sensor.second[0] = sensor_x;
             sensor.second[1] = sensor_y;
 
-            float dist = std::sqrt(pow(x - sensor_x, 2) + pow(y - sensor_y, 2));
-            state.emplace_back(dist);
+            state.emplace_back(distance(x, sensor_x, y, sensor_y));
         }
 
         return state;
     }
 
-    Vector reset(sf::Image& image) {
-
+    Vector reset() {
         // This randomly searches the track and
         // resets the car to a valid position
-        while (off_track(x, y, image)) {
+
+        while (off_track(x, y)) {
             x = numerics::random() * display_x;
             y = numerics::random() * display_y;
-            velocity = numerics::randint(9);
-            angle = numerics::randint(359);
+            velocity = numerics::randint(1, 10);
+            angle = numerics::randint(1, 359);
         }
 
-        return read_sensors(image);
+        return read_sensors();
     }
 
-    Vector step(
-        int action,
-        bool& done,
-        float& reward,
-        sf::Image& image
-    ) {
-
+    Vector step(int action, bool& done, float& reward) {
         // This is how the car takes a step
         // given an action. The Agent can pick
         // from turning left, turning right,
         // speeding up, or slowing down.
     
-        Vector state = read_sensors(image);
+        Vector state = read_sensors();
 
-        // Translate action int to state changes
         if (action == 0) {
             angle -= 5;
         } else if (action == 1) {
@@ -115,24 +116,19 @@ struct Car {
             velocity -= 1;
         }
 
-        // Ensure car state is valid
         angle = angle % 359;
         velocity = std::clamp(velocity, int(1), max_speed);
 
-        // Convert to radians
         float radians = float(angle) * M_PI / 180.0;
         float old_x = x;
         float old_y = y;
 
-        // Move x and y positions
         x -= velocity * std::sin(radians);
         y += velocity * std::cos(radians);
 
-        // Determine if crashed and reward (distance travelled)
-        done = off_track(x, y, image);
-        reward = std::sqrt(pow(x - old_x, 2) + pow(y - old_y, 2));
+        done = off_track(x, y);
+        reward = distance(x, old_x, y, old_y);
 
-        // If crashed penalize heavily
         if (done) {
             reward = -1000;
         }
