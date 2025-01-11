@@ -10,9 +10,9 @@ int main() {
 
     int fps = 60;
     int max_speed = 10;
-    int epochs = 250000;
+    int epochs = 500000;
     int sensor_read = 200;
-    float sensor_chunk = 25;
+    float sensor_chunk = 20;
     float learn_rate = 0.05;
     float discount_rate = 0.90;
 

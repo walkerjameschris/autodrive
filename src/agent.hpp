@@ -14,31 +14,9 @@ struct QState {
         return *std::max_element(q.begin(), q.end());
     }
 
-    float action() {
-
-        Vector probs = q;
-        float prob = utilities::random();
-        float total = 0;
-
-        for (int i = 0; i < q.size(); i++) {
-            probs[i] = std::exp(q[i]);
-            total += probs[i];
-        }
-
-        for (int i = 0; i < q.size(); i++) {
-
-            probs[i] /= total;
-
-            if (i > 0) {
-                probs[i] += probs[i - 1];
-            }
-
-            if (probs[i] > prob) {
-                return i;
-            }
-        }
-
-        return q.size() - 1;
+    float argmax() {
+        auto iterator = std::max_element(q.begin(), q.end());
+        return std::distance(q.begin(), iterator);
     }
 };
 
@@ -72,7 +50,7 @@ struct Agent {
             key.emplace_back(encode(i));
         }
 
-        return qtable[key].action();
+        return qtable[key].argmax();
     }
 
     void update(Vector state, Vector new_state, int action, float reward) {
