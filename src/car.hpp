@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include "agent.hpp"
+#include "utilities.hpp"
 #include <SFML/Graphics.hpp>
 
 using Vector = std::vector<float>;
@@ -89,10 +90,10 @@ struct Car {
         // resets the car to a valid position
 
         while (off_track(x, y)) {
-            x = numerics::random() * display_x;
-            y = numerics::random() * display_y;
-            velocity = numerics::randint(1, 10);
-            angle = numerics::randint(1, 359);
+            x = utilities::random() * display_x;
+            y = utilities::random() * display_y;
+            velocity = utilities::randint(1, 10);
+            angle = utilities::randint(1, 359);
         }
 
         return read_sensors();

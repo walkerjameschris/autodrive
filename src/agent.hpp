@@ -4,25 +4,7 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
-
-using Key = std::vector<int>;
-using Vector = std::vector<float>;
-
-unsigned int seed = 123456;
-
-namespace numerics {
-
-    float random() {
-        unsigned int multiply = 16807;
-        unsigned int divisor = 2147483647;
-        seed = (multiply * seed) % divisor;
-        return std::abs(float(seed) / float(divisor));
-    }
-
-    int randint(int low, int high) {
-        return std::floor(low + random() * ((high - low) + 1));
-    }
-};
+#include "utilities.hpp"
 
 struct QState {
 
@@ -58,8 +40,8 @@ struct Agent {
 
     int get_action(Vector state, float epsilon) {
  
-        if (numerics::random() < epsilon) {
-            return numerics::randint(0, 3);
+        if (utilities::random() < epsilon) {
+            return utilities::randint(0, 3);
         }
 
         Key key;

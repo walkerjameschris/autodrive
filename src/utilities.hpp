@@ -1,9 +1,30 @@
 #pragma once
 
+#include <cmath>
 #include <string>
 #include "agent.hpp"
 #include <SFML/Graphics.hpp>
 
+using Key = std::vector<int>;
+using Vector = std::vector<float>;
+using Points = std::map<int, Vector>;
+
+unsigned int seed = 123456;
+
+namespace utilities {
+
+    float random() {
+        unsigned int multiply = 16807;
+        unsigned int divisor = 2147483647;
+        seed = (multiply * seed) % divisor;
+        return std::abs(float(seed) / float(divisor));
+    }
+
+    int randint(int low, int high) {
+        return std::floor(low + random() * ((high - low) + 1));
+    }
+};
+    
 struct HUD {
     
     sf::Font font;
@@ -15,20 +36,6 @@ struct HUD {
         text.setCharacterSize(16);
         text.setPosition(10, 10);
         text.setFillColor(sf::Color::White);
-    }
-
-    static std::string remap_action(int action) {
-        if (action == 0) {
-            return "Left";
-        } else if (action == 1) {
-            return "Right";
-        } else if (action == 2) {
-            return "Faster";
-        } else if (action == 3) {
-            return "Slower";
-        }
-
-        return "";
     }
 
     float render(
@@ -50,7 +57,7 @@ struct HUD {
             message += "\n";
         }
 
-        message += "Action: " + remap_action(action) + "\n";
+        message += "Action: " + std::to_string(action) + "\n";
         message += "FPS: " + std::to_string(fps);
 
         text.setString(message);

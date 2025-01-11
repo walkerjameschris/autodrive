@@ -3,6 +3,7 @@
 #include <string>
 #include "car.hpp"
 #include <iostream>
+#include "utilities.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace simulate {
@@ -35,9 +36,9 @@ namespace simulate {
                 }
             }
 
-            epsilon = std::max(float(0), epsilon - (1 / float(n)));
+            epsilon = std::max(float(0), epsilon - (2 / float(n)));
 
-            if ((i % 500) == 0) {
+            if ((i % 1000) == 0) {
                 std::cout << " Epoch: " << std::to_string(i);
                 std::cout << " Reward: " << std::to_string(rewards);
                 std::cout << " Epsilon: " << std::to_string(epsilon);
@@ -53,7 +54,8 @@ namespace simulate {
         Vector state,
         sf::Clock& clock,
         sf::Sprite& sprite,
-        sf::RenderWindow& window
+        sf::RenderWindow& window,
+        sf::Sprite& racecar_sprite
     ) {
         // This sets up a rendering cycle for one frame.
         // This is called once per frame in the SFML
@@ -66,18 +68,15 @@ namespace simulate {
         int action = agent.get_action(state, 0);
         state = car.step(action, done, reward);
 
-        sf::RectangleShape rectangle;
+        racecar_sprite.setPosition({car.x, car.y});
+        racecar_sprite.setRotation(car.angle);
+        racecar_sprite.setOrigin({10, 20});
+
         sf::CircleShape circle;
 
-        rectangle.setFillColor(sf::Color::Green);
-        rectangle.setPosition({car.x, car.y});
-        rectangle.setRotation(car.angle);
-        rectangle.setOrigin({10, 20});
-        rectangle.setSize({20, 30});
-
-        circle.setFillColor(sf::Color::Red);
-        circle.setOrigin({3, 3});
-        circle.setRadius(3);
+        circle.setFillColor(sf::Color::White);
+        circle.setOrigin({4, 4});
+        circle.setRadius(4);
 
         window.clear();
         window.draw(sprite);
@@ -90,7 +89,7 @@ namespace simulate {
         }
 
         hud.render(action, state, clock, window);
-        window.draw(rectangle);
+        window.draw(racecar_sprite);
         window.display();
 
         if (done) {

@@ -1,34 +1,40 @@
 #include <string>
 #include <iostream>
-#include "src/hud.hpp"
 #include "src/car.hpp"
 #include "src/agent.hpp"
 #include "src/simulate.hpp"
+#include "src/utilities.hpp"
 #include <SFML/Graphics.hpp>
 
 int main() {
 
     int fps = 60;
     int max_speed = 10;
-    int epochs = 500000;
+    int epochs = 250000;
     int sensor_read = 200;
-    float sensor_chunk = 20;
-    float learn_rate = 0.05;
-    float discount_rate = 0.90;
+    float sensor_chunk = 25;
+    float learn_rate = 0.01;
+    float discount_rate = 0.95;
 
-    sf::Texture texture;
-    sf::Sprite sprite;
-    sf::Image image;
+    sf::Texture track_texture;
+    sf::Sprite track_sprite;
+    sf::Image track_image;
 
-    texture.loadFromFile("../img/track.png");
-    sprite.setTexture(texture);
-    image = texture.copyToImage();
+    track_texture.loadFromFile("../img/track.png");
+    track_sprite.setTexture(track_texture);
+    track_image = track_texture.copyToImage();
 
-    sf::Vector2u display_dims = image.getSize();
+    sf::Texture car_texture;
+    sf::Sprite car_sprite;
+
+    car_texture.loadFromFile("../img/car.png");
+    car_sprite.setTexture(car_texture);
+
+    sf::Vector2u display_dims = track_image.getSize();
     int display_x = display_dims.x;
     int display_y = display_dims.y;
 
-    Car car(display_x, display_y, sensor_read, max_speed, image);
+    Car car(display_x, display_y, sensor_read, max_speed, track_image);
     Agent agent(sensor_chunk, learn_rate, discount_rate);
     HUD hud("../font/jetbrains.ttf");
 
@@ -56,8 +62,9 @@ int main() {
             agent,
             state,
             clock,
-            sprite,
-            window
+            track_sprite,
+            window,
+            car_sprite
         );
     }
 
