@@ -13,8 +13,8 @@ int main() {
     int epochs = 250000;
     int sensor_read = 200;
     float sensor_chunk = 25;
-    float learn_rate = 0.01;
-    float discount_rate = 0.95;
+    float learn_rate = 0.05;
+    float discount_rate = 0.90;
 
     sf::Texture track_texture;
     sf::Sprite track_sprite;

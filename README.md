@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/walkerjameschris/autodrive/refs/heads/main/img/car.png" height="30" vertical> autodrive
+# <img src="https://raw.githubusercontent.com/walkerjameschris/autodrive/refs/heads/main/img/car.png" height="25" vertical> autodrive
 
 A from-scratch implementation of Q-learning in C++ used to train a 2D car
 how to drive around a simple racetrack. The system works by simulating
