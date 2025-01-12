@@ -47,11 +47,11 @@ namespace simulate {
         }
     }
 
-    Vector render(
+    void render(
         HUD& hud,
         Car& car,
         Agent& agent,
-        Vector state,
+        Vector& state,
         sf::Clock& clock,
         sf::Sprite& sprite,
         sf::RenderWindow& window,
@@ -95,7 +95,5 @@ namespace simulate {
         if (done) {
             car.reset();
         }
-
-        return state;
     }
 }

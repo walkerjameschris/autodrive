@@ -9,8 +9,7 @@ These rewards and penalties are used to develop an in-memory Q-table. This
 is a hashmap which **relates state to action**. In this simulation, the 
 state is the car's sensors which measure the distance from the car to the
 edge of the road on pre-derermined angles. This state is related to Q-values
-which are fed through a softmax function to determine probabilities as to
-what the car should do next.
+which are fed through a series of functions to determine the best action.
 
 When the car is training, it updates it Q-table at each step. When it is
 evaluated, it simply references the Q-table to make choices. I also

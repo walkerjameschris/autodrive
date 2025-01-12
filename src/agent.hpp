@@ -40,8 +40,8 @@ struct Agent {
 
     int get_action(Vector state, float epsilon) {
  
-        if (utilities::random() < epsilon) {
-            return utilities::randint(0, 3);
+        if (numerics::random() < epsilon) {
+            return numerics::randint(0, 3);
         }
 
         Key key;

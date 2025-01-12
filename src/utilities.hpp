@@ -11,7 +11,7 @@ using Points = std::map<int, Vector>;
 
 unsigned int seed = 123456;
 
-namespace utilities {
+namespace numerics {
 
     float random() {
         unsigned int multiply = 16807;
@@ -22,6 +22,19 @@ namespace utilities {
 
     int randint(int low, int high) {
         return std::floor(low + random() * ((high - low) + 1));
+    }
+};
+
+struct Element {
+
+    sf::Image image;
+    sf::Sprite sprite;
+    sf::Texture texture;
+
+    Element(std::string path) {
+        texture.loadFromFile(path);
+        image = texture.copyToImage();
+        sprite.setTexture(texture);
     }
 };
     
