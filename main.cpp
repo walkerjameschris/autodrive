@@ -18,12 +18,13 @@ int main() {
     float learn_rate = 0.05;
     float discount_rate = 0.90;
 
+    HUD hud("../font/jetbrains.ttf");
+
     Element track("../img/track.png");
     Element racecar("../img/car.png");
 
-    Car car(display_x, display_y, sensor_read, max_speed, track.image);
     Agent agent(sensor_chunk, learn_rate, discount_rate);
-    HUD hud("../font/jetbrains.ttf");
+    Car car(display_x, display_y, sensor_read, max_speed, track.image);
 
     simulate::train(epochs, car, agent);
 

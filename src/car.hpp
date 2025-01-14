@@ -104,8 +104,6 @@ struct Car {
         // given an action. The Agent can pick
         // from turning left, turning right,
         // speeding up, or slowing down.
-    
-        Vector state = read_sensors();
 
         if (action == 0) {
             angle -= 5;
@@ -134,6 +132,6 @@ struct Car {
             reward = -1000;
         }
 
-        return state;
+        return read_sensors();
     }
 };

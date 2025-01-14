@@ -51,7 +51,7 @@ struct HUD {
         text.setFillColor(sf::Color::White);
     }
 
-    float render(
+    void render(
         int action,
         Vector state,
         sf::Clock& clock,
@@ -75,6 +75,5 @@ struct HUD {
 
         text.setString(message);
         window.draw(text);
-        return fps;
     }
 };

@@ -18,6 +18,7 @@ namespace simulate {
         for (int i = 0; i < n; i++) {
 
             Vector state = car.reset();
+            Vector next_state;
 
             int cycle = 0;
             int action = 0;
@@ -27,7 +28,7 @@ namespace simulate {
 
             for (int j = 0; j < 1000; j++) {
                 action = agent.get_action(state, epsilon);
-                Vector next_state = car.step(action, done, reward);
+                next_state = car.step(action, done, reward);
                 agent.update(state, next_state, action, reward);
                 rewards = round(rewards + reward);
                 state = next_state;
