@@ -3,11 +3,13 @@
 #include <cmath>
 #include <string>
 #include "agent.hpp"
+#include <unordered_map>
 #include <SFML/Graphics.hpp>
 
 using Key = std::vector<int>;
 using Vector = std::vector<float>;
 using Points = std::map<int, Vector>;
+using TrackMap = std::unordered_map<int, bool>;
 
 unsigned int seed = 123456;
 

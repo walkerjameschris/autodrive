@@ -9,9 +9,6 @@
 #include "utilities.hpp"
 #include <SFML/Graphics.hpp>
 
-using Vector = std::vector<float>;
-using Points = std::map<int, Vector>;
-
 struct Car {
 
     float x;
@@ -22,7 +19,8 @@ struct Car {
     int max_cycles;
     float display_x;
     float display_y;
-    sf::Image track;
+
+    TrackMap track_map;
 
     Points sensors = {
         {-45, {0, 0}},
@@ -30,6 +28,10 @@ struct Car {
         {45, {0, 0}}
     };
 
+    static int hash(int x, int y) {
+        return (x + y) * (x + y + 1) / 2 + x;
+    }
+ 
     Car(
         float disp_x,
         float disp_y,
@@ -41,7 +43,14 @@ struct Car {
         display_y = disp_y;
         max_cycles = cycles;
         max_speed = speed;
-        track = image;
+
+        sf::Color crash = {0, 0, 0, 255};
+
+        for (int i = 0; i < disp_x; i++) {
+            for (int j = 0; j < disp_y; j++) {
+                track_map[hash(i, j)] = image.getPixel(i, j) == crash;
+            }
+        }
     }
 
     static float distance(float x1, float x2, float y1, float y2) {
@@ -49,9 +58,7 @@ struct Car {
     }
 
     bool off_track(float x, float y) {
-        sf::Color color = track.getPixel(int(x), int(y));
-        sf::Color crash = {0, 0, 0, 255};
-        return color == crash;
+        return track_map[hash(int(x), int(y))];
     }
 
 
@@ -69,8 +76,8 @@ struct Car {
             float sensor_y = y;
 
             for (int i = 0; i < max_cycles; i++) {
-                sensor_x -= 1 * std::sin(radians);
-                sensor_y += 1 * std::cos(radians);
+                sensor_x -= 2 * std::sin(radians);
+                sensor_y += 2 * std::cos(radians);
                 if (off_track(sensor_x, sensor_y)) {
                     break;
                 }

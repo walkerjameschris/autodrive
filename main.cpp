@@ -13,7 +13,7 @@ int main() {
     int epochs = 500000;
     int display_y = 720;
     int display_x = 1280;
-    int sensor_read = 200;
+    int sensor_read = 100;
     float sensor_chunk = 20;
     float learn_rate = 0.05;
     float discount_rate = 0.90;

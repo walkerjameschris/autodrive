@@ -26,7 +26,7 @@ namespace simulate {
             float reward = 0;
             bool done = false;
 
-            for (int j = 0; j < 1000; j++) {
+            for (int j = 0; j < 500; j++) {
                 action = agent.get_action(state, epsilon);
                 next_state = car.step(action, done, reward);
                 agent.update(state, next_state, action, reward);

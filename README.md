@@ -47,6 +47,8 @@ Simply running the binary will launch a train and evaluation cycle. There
 are a few hyperparameters described in `main.cpp` which can be tweaked,
 but their default settings work well.
 
+<img src="https://raw.githubusercontent.com/walkerjameschris/autodrive/main/img/autodrive.png" height="225" />
+
 # Resources
 
 * [SFML](https://www.sfml-dev.org/)
