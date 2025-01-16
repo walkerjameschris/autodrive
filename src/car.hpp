@@ -61,7 +61,6 @@ struct Car {
         return track_map[hash(int(x), int(y))];
     }
 
-
     Vector read_sensors() {
         // This method determines the distance from the car to
         // the wall along specified angles. These are the
@@ -76,8 +75,8 @@ struct Car {
             float sensor_y = y;
 
             for (int i = 0; i < max_cycles; i++) {
-                sensor_x -= 2 * std::sin(radians);
-                sensor_y += 2 * std::cos(radians);
+                sensor_x -= 1 * std::sin(radians);
+                sensor_y += 1 * std::cos(radians);
                 if (off_track(sensor_x, sensor_y)) {
                     break;
                 }

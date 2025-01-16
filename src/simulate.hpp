@@ -37,13 +37,17 @@ namespace simulate {
                 }
             }
 
-            epsilon = std::max(float(0), epsilon - (2 / float(n)));
+            epsilon = std::max(float(0), epsilon - (1 / float(n)));
 
             if ((i % 1000) == 0) {
                 std::cout << " Epoch: " << std::to_string(i);
                 std::cout << " Reward: " << std::to_string(rewards);
                 std::cout << " Epsilon: " << std::to_string(epsilon);
                 std::cout << std::endl;
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+                break;
             }
         }
     }
